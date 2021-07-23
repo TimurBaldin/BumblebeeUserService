@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     @GetMapping("/login")
-    public void login(){
-
+    public String login() {
+        return "/login OK";
     }
 
     @GetMapping("/registration")
-    public void registration(){
-
+    public String registration() {
+        return "/registration OK";
     }
 
 }

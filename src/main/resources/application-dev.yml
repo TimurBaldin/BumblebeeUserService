@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/data_generator?currentSchema=users
+    username: postgres
+    password: 1

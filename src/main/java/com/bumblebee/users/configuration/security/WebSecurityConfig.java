@@ -1,5 +1,6 @@
-package com.bumblebee.users.configuration;
+package com.bumblebee.users.configuration.security;
 
+import com.bumblebee.users.service.AuthProvider;
 import com.bumblebee.users.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -20,12 +21,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private UserDetailsServiceImpl userDetailsService;
 
     @Autowired
-    private JwtRequestFilter jwtRequestFilter;
+    private AuthProvider authProvider;
 
-    @Autowired
-    public void registerGlobalAuthentication(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(getBCryptPasswordEncoder());
 
+    @Override
+    public void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService)
+                .passwordEncoder(getBCryptPasswordEncoder());
+        auth.authenticationProvider(authProvider);
     }
 
     @Bean
@@ -35,36 +38,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        http.csrf()
-                .disable()
-
-                .authorizeRequests()
-                .antMatchers("/resources/**", "/**").permitAll()
-                .anyRequest().permitAll()
-                .and();
-
-        http.formLogin()
-
-                .loginPage("/login")
-
-                .loginProcessingUrl("/j_spring_security_check")
-
-                .failureUrl("/login?error")
-
-                .usernameParameter("j_username")
-                .passwordParameter("j_password")
-
-                .permitAll();
-
-        http.logout()
-
-                .permitAll()
-
-                .logoutUrl("/logout")
-
-                .logoutSuccessUrl("/login?logout")
-
-                .invalidateHttpSession(true);
+        http.authorizeRequests()
+                .antMatchers("/user/*").authenticated()
+                .and()
+                .formLogin()
+                .and()
+                .rememberMe();
     }
 
 }
